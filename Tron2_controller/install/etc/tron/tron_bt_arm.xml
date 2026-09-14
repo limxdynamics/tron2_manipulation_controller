@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="DA_TRON2A">
+    <Fallback>
+      <Precondition if="@RobotEvent=='EV_CALIBRATION' && @RobotState=='ST_IDLE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_CALIBRATING'"/>
+          <atc_calibration/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_CALIBRATING'" else="FAILURE">
+        <Sequence>
+          <func_sync_joint_data/>
+          <Script code=" @RobotState:='ST_IDLE' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_IDLE' "/>
+          <atc_damping/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MP_HOME'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_HOME' "/>
+          <atc_mp_home/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_HOME'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_IDLE' "/>
+          <atc_damping/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MP_TELE' && (@RobotState=='ST_IDLE' || @RobotState=='ST_DEVED')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_QUESTING' "/>
+          <atc_mp_quest/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_QUESTING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_TRACKING' "/>
+          <atc_mp_track_start/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_TRACKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_TELED' "/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MP_DEV' && (@RobotState=='ST_IDLE' || @RobotState=='ST_SERVO')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DEVING' "/>
+          <atc_mp_dev/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_DEVING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DEVED' "/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MP_SERVO' && @RobotState=='ST_DEVED'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SERVO' "/>
+          <atc_mp_dev_stop/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_TIMEOUT' || @RobotEvent=='EV_ACTION_FAILURE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_IDLE' "/>
+          <Script code=" @RobotEvent:='' "/>
+        </Sequence>
+      </Precondition>
+      <Script code=" @RobotEvent:='' "/>
+      <AT_NONE/>
+    </Fallback>
+  </BehaviorTree>
+</root>

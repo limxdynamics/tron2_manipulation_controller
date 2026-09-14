@@ -1,0 +1,9 @@
+api_urls:
+  navi_mapping_url: "http://127.0.0.1:8090/mapping.jpeg"
+  navi_map_base_url: "http://127.0.0.1:8090/maps"
+
+# 3.5 只规定 WebSocket notify 名称，不规定后端 topic 名；如导航部署不同可在此调整。
+navigation_topics:
+  pose: "/pose_stamped"
+  mapping_occupancy_grid: "/navigation/mapping_occupancy_grid"
+  location_occupancy_grid: "/navigation/location_occupancy_grid"

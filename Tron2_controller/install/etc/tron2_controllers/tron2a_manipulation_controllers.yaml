@@ -1,0 +1,21 @@
+namespace: "/tron2" # Specifies the namespace for the controller (default: '/').
+update_rate: 300.0 # Sets the update frequency of the controller in Hz (default: 300 Hz).
+cpu_affinity: 1 # Configures CPU affinity for the controller (default: -1, no specific affinity).
+
+topic_jointstate: "/motor/state" # Topic used to receive robot joint state information.
+topic_jointcmd: "/motor/cmd" # Topic used to publish robot joint commands.
+
+# Controller Configuration
+mroscontrollers:
+  manipulation_track:
+    type: "manipulation/Track"
+  manipulation_dev:
+    type: "manipulation/Dev"
+  manipulation_damping:
+    type: "manipulation/Damping"
+  manipulation_head:
+    type: "manipulation/Head"
+  manipulation_quest:
+    type: "manipulation/Quest"
+  manipulation_home:
+    type: "manipulation/Home"

@@ -1,0 +1,9 @@
+<library path="lib/libmanipulation_dev">
+    <class name="manipulation/Dev"
+        type="manipulation::Dev"
+        base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_dev controller.
+        </description>
+    </class>
+</library>

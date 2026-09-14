@@ -1,0 +1,7 @@
+<library path="lib/libmanipulation_head">
+    <class name="manipulation/Head" type="manipulation::Head" base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_head controller.
+        </description>
+    </class>
+</library>

@@ -1,0 +1,24 @@
+suite: servo
+description: "Generated single-target simulation ServoJ/ServoP coverage at 300 Hz."
+generators:
+  - type: servoJ
+    id_prefix: SERVOJ_TARGET
+    count: 2
+    time_range_sec: [1.0, 2.0]
+    patterns:
+      - dual_shoulder_elbow_lift
+      - wrist_head_coordination
+    send_rate_hz: 300.0
+    filter_ratio: 1.0
+    simulation_only: true
+
+  - type: servoP
+    id_prefix: SERVOP_TARGET
+    count: 2
+    time_range_sec: [1.0, 2.0]
+    patterns:
+      - both_x
+      - both_y
+    send_rate_hz: 300.0
+    payload_mode: pos
+    simulation_only: true

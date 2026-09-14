@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="SF_TRON2A">
+    <Fallback>
+      <Precondition if="@RobotEvent=='EV_CONTACT' && @RobotState!='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotPrevState:=@RobotState "/>
+          <Script code=" @RobotState:='ST_CONTACT'"/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CONTACT_RELEASE' && @RobotState=='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:=@RobotPrevState "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING_FORCE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING' && @RobotState!='ST_WALKING' && @RobotState!='ST_STAIR' && @RobotState!='ST_MARKTIME'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && (@RobotState=='ST_IDLE' || @RobotState=='ST_DAMPING')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_PREPARING'" else="FAILURE">
+        <Script code=" @RobotState:='ST_PREPARED' "/>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND' && @RobotState=='ST_PREPARED'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND_SUCCESS' && @RobotState=='ST_STANDING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_SIT' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_SITTING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_TIMEOUT' || @RobotEvent=='EV_ACTION_FAILURE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MARKTIME' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_MARKTIME' "/>
+          <atc_marktime/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_MARKTIME' && @RobotState=='ST_MARKTIME'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_RECOVER' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_RECOVERING' "/>
+          <atc_recover/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_RECOVERING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <Script code=" @AppendActionState:='ST_WALKING' "/>
+          <Script code=" @AppendAction:='PUB_TWIST_MANUAL' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CRIT_LOW_BAT' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CRIT_LOW_BAT' && @RobotState=='ST_MARKTIME'" else="FAILURE">
+        <Sequence>
+          <atc_walk/>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <AT_NONE/>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="WF_TRON2A">
+    <Fallback>
+      <Precondition if="@RobotEvent=='EV_CONTACT' && @RobotState!='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotPrevState:=@RobotState "/>
+          <Script code=" @RobotState:='ST_CONTACT'"/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CONTACT_RELEASE' && @RobotState=='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:=@RobotPrevState "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING_FORCE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING' && @RobotState!='ST_WALKING' && @RobotState!='ST_STAIR' && @RobotState!='ST_MARKTIME' && @RobotState!='ST_ROTATE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && (@RobotState=='ST_IDLE' || @RobotState=='ST_DAMPING')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_PREPARING'" else="FAILURE">
+        <Script code=" @RobotState:='ST_PREPARED' "/>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND' && @RobotState=='ST_PREPARED'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND_SUCCESS' && @RobotState=='ST_STANDING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND' && @RobotState=='ST_ROTATE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ROTATE' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_ROTATE' "/>
+          <atc_rotate/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_SIT' && (@RobotState=='ST_WALKING'||@RobotState=='ST_STAIR')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_SITTING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING_PREPARE' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_SITTING_PREPARE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_TIMEOUT' || @RobotEvent=='EV_ACTION_FAILURE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAIR' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STAIR' "/>
+          <atc_stair/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAIR' && @RobotState=='ST_STAIR'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_RECOVER' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_RECOVERING' "/>
+          <atc_recover/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_RECOVERING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CRIT_LOW_BAT' && (@RobotState=='ST_WALKING' || @RobotState=='ST_STAIR')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <AT_NONE/>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="PF_TRON2A">
+    <Fallback>
+      <Precondition if="@RobotEvent=='EV_CONTACT' && @RobotState!='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotPrevState:=@RobotState "/>
+          <Script code=" @RobotState:='ST_CONTACT'"/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CONTACT_RELEASE' && @RobotState=='ST_CONTACT'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:=@RobotPrevState "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING_FORCE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_DAMPING' && @RobotState!='ST_WALKING' && @RobotState!='ST_STAIR' && @RobotState!='ST_MARKTIME'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && (@RobotState=='ST_IDLE' || @RobotState=='ST_DAMPING')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_PREPARE' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_PREPARING' "/>
+          <atc_prepare/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_PREPARING'" else="FAILURE">
+        <Script code=" @RobotState:='ST_PREPARED' "/>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND' && @RobotState=='ST_PREPARED'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_STAND_SUCCESS' && @RobotState=='ST_STANDING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_WALKING' "/>
+          <atc_walk/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_SIT' && @RobotState=='ST_WALKING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_SITTING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_TIMEOUT' || @RobotEvent=='EV_ACTION_FAILURE'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_DAMPING' "/>
+          <atc_damping/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_RECOVER' && @RobotState=='ST_FALLOVER'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_RECOVERING' "/>
+          <atc_recover/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_ACTION_SUCCESS' && @RobotState=='ST_RECOVERING'" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_STANDING' "/>
+          <atc_stand/>
+        </Sequence>
+      </Precondition>
+      <Precondition if="@RobotEvent=='EV_CRIT_LOW_BAT' && (@RobotState=='ST_WALKING' || @RobotState=='ST_STAIR')" else="FAILURE">
+        <Sequence>
+          <Script code=" @RobotState:='ST_SITTING' "/>
+          <atc_sit/>
+        </Sequence>
+      </Precondition>
+      <AT_NONE/>
+    </Fallback>
+  </BehaviorTree>
+</root>

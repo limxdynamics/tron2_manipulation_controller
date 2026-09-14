@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.env/
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# Tests and coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+coverage.xml
+*.cover
+
+# Tron2_arm_tests runtime reports
+Tron2_arm_tests/results/
+preflight_summary.json
+cases_summary.csv
+cases_summary.json
+
+# Virtual / local env and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+secrets.yaml
+
+# Logs and recordings
+*.log
+*.bag
+core
+core.*
+logs/
+log/
+
+# Editors and OS
+.cursor/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# C/C++ and CMake leftovers
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+compile_commands.json
+*.o
+*.d
+
+# MuJoCo generated artifacts
+*.mjb
+MUJOCO_LOG.TXT

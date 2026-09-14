@@ -1,0 +1,57 @@
+# manipulation_quest — DACH_TRON2A
+#
+# 只放"随机型变"的量。全机型共用的（kp/kd、soft_limit、quest_timeout 等）仍在
+# etc/tron2_manipulation_config/params.yaml，由 ManipulationBase::loadCfg() 读。
+#
+# 本文件的值是从 params.yaml 原样搬过来的，DACH 行为逐位不变。params.yaml 里
+# 那几节仍留着——manipulation_home 还在读 desire_joint01/02。
+#
+# 加新机型时这三节都必须重新给，不能照抄：它们全部表达在"基座系 + 手臂左右布局"
+# 里，而这两样恰好是各机型差得最多的地方。
+
+# 初始化航路点（长按 A+X 触发）。整机 14 维由 loadDesireJoint 生成：这里写左臂 7 个，
+# 右臂 = 左臂 × {1,-1,-1,1,-1,1,-1}。字段名沿用腿的叫法：
+#   abad=proximal_pitch  hip=proximal_roll  yaw=proximal_yaw  knee=elbow
+#
+# 01→02→03 只在 need_avoid_table_（面前有台面）时逐段走：先把手臂放直下垂并转开
+# (01)，再屈肘收回 (02)，最后到 home (03)。没有台面时直接插值到 03。
+desire_joint01:
+  abad_joint: 0.0
+  hip_joint: 0.0
+  yaw_joint: 1.48 #1.57
+  knee_joint: 0.0
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+desire_joint02:
+  abad_joint: 0.0
+  hip_joint: 0.0
+  yaw_joint: 1.48 #1.57
+  knee_joint: -1.57
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+# 与 drag/config/DACH_TRON2A/config.yaml 的 home_position 左臂 7 位逐位相同。
+desire_joint03:
+  abad_joint: 0.0
+  hip_joint: 0.25
+  yaw_joint: 0.0
+  knee_joint: -1.57
+  wrist_yaw_joint: 0.236
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+# 夹爪板的 q[0]/q[1] 按物理左/右排列；DACH 的命名左右与物理左右一致。
+swap_gripper_hands: false
+
+# 贴身工作空间裁剪（onTeleopMsg_）：手部锚点离身体太近时整帧丢弃，不下发。
+# 只在 z 落在 [z_min, z_max] 这个危险高度带内才判，带外原样放行。
+#   left_hand:  丢弃条件 z_min <= z <= z_max 且 x < x 且 y <  y
+#   right_hand: 丢弃条件 z_min <= z <= z_max 且 x < x 且 y > -y
+hand_workspace_near_limit:
+  x: 0.25
+  y: 0.15
+  z_min: -0.15
+  z_max: 0.20

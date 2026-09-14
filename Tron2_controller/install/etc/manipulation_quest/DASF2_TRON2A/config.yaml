@@ -1,0 +1,40 @@
+# manipulation_quest — DASF2_TRON2A
+# DASF2's roll joint origins differ from DASF by +/-2.8 rad.  The waypoints
+# below preserve DASF's prepare posture in DASF2 joint coordinates.
+
+desire_joint01:
+  abad_joint: 0.0
+  hip_joint: 0.0916
+  yaw_joint: -1.48
+  knee_joint: 0.0
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+desire_joint02:
+  abad_joint: 0.0
+  hip_joint: 0.0916
+  yaw_joint: -1.48
+  knee_joint: -1.57
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+desire_joint03:
+  abad_joint: 0.0
+  hip_joint: 0.0916
+  yaw_joint: 0.0
+  knee_joint: -1.57
+  wrist_yaw_joint: -0.236
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+swap_gripper_hands: true
+
+# Preserve DASF's near-body exclusion band after translating it from the
+# DASF base frame to DASF2's base frame.
+hand_workspace_near_limit:
+  x: 0.14915
+  y: 0.15
+  z_min: 0.32775
+  z_max: 0.67775

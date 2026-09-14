@@ -1,0 +1,21 @@
+﻿configure:
+  environment:
+    IS_SIM: 1
+
+mrosnode:
+  controllerloader:
+    path: controllerloader
+    disabled: false
+    oneshot: false
+    autostart: true
+    argv: "-f tron2_controllers/tron2a_manipulation_controllers.yaml"
+  snowball:
+    path: tron
+    disabled: false
+    oneshot: false
+    autostart: true
+  signaling_node:
+    path: signaling_node
+    disabled: false
+    oneshot: false
+    autostart: true

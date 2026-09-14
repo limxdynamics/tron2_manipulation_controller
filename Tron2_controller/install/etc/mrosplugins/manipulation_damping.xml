@@ -1,0 +1,7 @@
+<library path="lib/libmanipulation_damping">
+    <class name="manipulation/Damping" type="manipulation::Damping" base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_damping controller.
+        </description>
+    </class>
+</library>

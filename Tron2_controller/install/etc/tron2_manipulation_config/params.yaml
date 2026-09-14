@@ -1,0 +1,187 @@
+# common PD ==================================
+kp:
+  abad_joint: 620
+  hip_joint: 620
+  yaw_joint: 600
+  knee_joint: 600
+  wrist_yaw_joint: 500 
+  wrist_pitch_joint: 400
+  wrist_roll_joint: 350
+kd:
+  abad_joint: 12
+  hip_joint: 12
+  yaw_joint: 15
+  knee_joint: 15
+  wrist_yaw_joint: 10
+  wrist_pitch_joint: 10
+  wrist_roll_joint: 10
+
+# quest & trck controller ==================================
+# table cllision check
+platform_height: -0.8 # height limit without table is -0.8
+
+# workspace near-body clipping (onTeleopMsg_): drop hand anchor when too close to body.
+# Only checked when z is inside [z_min, z_max] (the dangerous height band, e.g. torso/legs).
+# Outside that band the anchor is passed through unchanged.
+# left_hand:  skip if z_min <= z <= z_max AND x < x_limit AND y <  y_limit
+# right_hand: skip if z_min <= z <= z_max AND x < x_limit AND y > -y_limit
+hand_workspace_near_limit:
+  x: 0.25
+  y: 0.15
+  z_min: -0.15
+  z_max: 0.20
+
+desire_joint01:
+  abad_joint: 0.0
+  hip_joint: 0
+  yaw_joint: 1.48 #1.57
+  knee_joint: 0
+  wrist_yaw_joint: 0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+desire_joint02:
+  abad_joint: 0.0
+  hip_joint: 0
+  yaw_joint: 1.48 #1.57
+  knee_joint: -1.57
+  wrist_yaw_joint: 0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+desire_joint03:
+  abad_joint: 0.0
+  hip_joint: 0.25
+  yaw_joint: 0.0
+  knee_joint: -1.57
+  wrist_yaw_joint: 0.236
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+tele:
+  left_gain: 100
+  right_gain: 100
+
+max_delta_q: 0.01 # joints max change per update
+
+# Quest watchdog: if no /vr_cmd_tron received within this duration (seconds),
+# disable tracking so the arms hold their current pose instead of drifting.
+# Set to <= 0 to disable. Tune by experiment on the actual link.
+quest_timeout: 0.5
+
+# damping controller ==================================
+damping_kd:
+  abad_joint: 8.0
+  hip_joint: 8.0
+  yaw_joint: 8.0
+  knee_joint: 8.0
+  wrist_yaw_joint: 5.0
+  wrist_pitch_joint: 5.0
+  wrist_roll_joint: 5.0
+  head_yaw_joint: 3.0
+  head_pitch_joint: 3.0
+
+# head controller ==================================
+head_kp:
+  yaw_joint: 300.0
+  pitch_joint: 300.0
+head_kd:
+  yaw_joint: 11.0
+  pitch_joint: 11.0
+
+head_web_v: 0.001
+# VR follow-head first-order low-pass. Smaller = stickier.
+# At 300 Hz, 0.03 ≈ 40-50 ms time constant.
+head_low_pass_ratio: 0.03
+# Seconds to hold current head pose after VR follow-head is enabled,
+# waiting for /teleop_cmd to settle before tracking vr_angle_cmd_.
+head_vr_enable_wait: 0.1
+# rad. When switching to web control, resync cmd.q to state.q if they differ
+# by more than this, to avoid a command jump.
+head_web_resync_threshold: 0.06
+
+# dev controller ==================================
+soft_limit: 1.0
+steady_state_threshold: 0.001
+servoJ_max_vel: 3.0 # rad/s
+command_jump_threshold: 0.5 # rad, reject servo commands too far from current joint state
+command_jump_diagnostic_period: 1.0 # s, throttle command-jump warnings; <=0 publishes every warning
+# moveP: IK 解出后做 FK 正解校验, 末端位置误差(m)超过此值判定"直线无法到达", 规划失败
+moveP_fk_pos_tol: 0.005
+# moveP: 逐周期关节速度上限 = URDF <limit velocity> (臂段 17.8~22.52 rad/s) * 本系数,
+# 轨迹任一周期任一关节超过则规划失败。0.2 => 约 3.6~4.5 rad/s, 与 servoJ_max_vel(3.0) 同量级
+moveP_vel_limit_ratio: 0.8
+
+# collision detection (manipulation_contact) ===================================
+# Designed for the "stationary + low-to-medium speed" scenario.
+# All parameters are hot-reloadable on every starting().
+contact:
+  # Observer bandwidth K_O (rad/s). Higher = faster detection, more noise.
+  # 15 is the desensitised default after tuning against the mujoco sim where
+  # the PD-held arm shows ~1 Hz oscillation; raise back to 25-30 once the
+  # calibration is stable and false-positives are gone.
+  k_obs: 15.0
+
+  # How many *stationary* residual samples are averaged into tau_bias.
+  # 600 samples @ 300 Hz update_rate ≈ 2.0 s of calibration - long enough
+  # to wash out the start-up PD transient and the controller-swap spike.
+  calib_samples: 600
+
+  # Velocity (rad/s, ||v_arm||) under which we consider the arm "stationary"
+  # and acceptable to feed the bias-calibration buffer.
+  calib_v_thresh: 0.05
+
+  # Speed gate: skip collision judgement when ||v_arm|| exceeds this.
+  # Bumped from 1.5 -> 8.0 because the previous limit was easily exceeded by
+  # the PD reaction during a real contact event (the arm gets pushed, the PD
+  # snaps it back, ||v_arm|| spikes above 1.5 for 1-2 ticks). The current
+  # detector path resets the state machine to kReady whenever speed_ok is
+  # false, which combined with over_count being a "history" value caused a
+  # collision/release ping-pong every time the velocity spiked. 8.0 rad/s is
+  # well above any joint speed seen during contact-induced PD recovery in
+  # mujoco, while still cutting off the genuinely high-speed motion cases
+  # (which max out at ~3-4 rad/s for whole-arm trajectories).
+  v_norm_max_for_check: 8.0
+
+  # Consecutive over-threshold ticks required to fire a collision diagnostic.
+  # At 300 Hz, 30 ticks ≈ 100 ms - filters PD-jitter spikes that briefly graze
+  # the (now lower) threshold while still well below a real contact's onset
+  # time. Bumped from 20 to 30 because the per-joint thresholds have been
+  # dropped to make 3 N end-effector contact detectable.
+  dwell_ticks: 30
+
+  # Hysteresis: residual must drop below release_ratio*threshold and stay there
+  # for release_dwell_ticks ticks before clearing the over-threshold counter.
+  # release_dwell_ticks @ 300 Hz: 150 ≈ 500 ms; release_ratio 0.5 widens the
+  # dead-band (was 0.25). This pair eliminates the collision/release ping-pong
+  # that appeared once we lowered thresholds (residual jitter around the
+  # trigger band would otherwise flip the state several times per second).
+  release_ratio: 0.5
+  release_dwell_ticks: 150
+
+  # Hard safety: if any |r[i]| ever exceeds this, we assume numerical
+  # divergence (e.g. a bad torque feedback frame) and silently reset the
+  # observer instead of broadcasting an ERROR.
+  diverge_norm: 500.0
+
+  # Residual is published to /manipulation_contact/residual every
+  # publish_decim ticks. 3 = 100 Hz at 300 Hz update_rate.
+  publish_decim: 3
+
+  # Per-arm collision trigger: sum(|r_i|) over 7 joints (L/R use the same value).
+  # Units: Nm (sum of absolute joint residual torques).
+  # 5 N +Y @ L_ee_link gave sum(|r|) ≈ 7-9; target 3-10 N contact range.
+  arm_sum_threshold: 20.0
+
+  # Persist tau_bias to etc/tron2_manipulation_config/contact_bias.bin after the
+  # first successful calibration. On later stop/start (or controller reload) the
+  # file is reused if URDF fingerprint and k_obs still match, skipping the ~2s
+  # stationary calibration. Set calib_on_every_start: true to force recalibration
+  # every time. Divergence (code 90) deletes the file and forces a fresh calib.
+  bias_persist_enable: true
+  bias_file: contact_bias.bin
+  calib_on_every_start: false
+ik_pos_tol: 0.002 # m, accept ik approx solution if both ee position errors are within this
+
+# The PiperX side-car controllers (piperx_prepare / piperx_crouch / piperx_track /
+# piperx_damping) and the tele_operation PiperX anchor read their own
+# etc/piperx_common/params.yaml instead of this file.
+ik_pos_tol: 0.001 # m, accept ik approx solution if both ee position errors are within this

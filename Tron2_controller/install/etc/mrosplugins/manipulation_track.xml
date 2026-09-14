@@ -1,0 +1,9 @@
+<library path="lib/libmanipulation_track">
+    <class name="manipulation/Track"
+        type="manipulation::Track"
+        base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_track controller.
+        </description>
+    </class>
+</library>

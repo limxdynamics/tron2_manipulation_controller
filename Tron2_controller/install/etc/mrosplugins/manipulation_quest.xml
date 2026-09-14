@@ -1,0 +1,9 @@
+<library path="lib/libmanipulation_quest">
+    <class name="manipulation/Quest"
+        type="manipulation::Quest"
+        base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_quest controller.
+        </description>
+    </class>
+</library>

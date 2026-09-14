@@ -1,0 +1,27 @@
+robot:
+  ip: "127.0.0.1"
+  port: 5000
+  accid: DACH_TRON2A_001
+  auto_accid: false
+
+timeouts:
+  connect_sec: 5.0
+  response_sec: 5.0
+  settle_sec: 8.0
+
+sampling:
+  state_rate_hz: 20.0
+  servo_rate_hz: 300.0
+
+thresholds:
+  joint_max_abs_rad: 0.05
+  head_max_abs_rad: 0.05
+  pose_position_m: 0.03
+  pose_orientation_rad: 0.15
+  stable_velocity_rad_s: 0.05
+  stable_window_sec: 0.3
+
+safety:
+  stop_on_failure: true
+  require_live_flag: true
+  servoj_max_velocity_rad_s: 0.5

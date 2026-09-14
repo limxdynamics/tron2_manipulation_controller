@@ -1,0 +1,83 @@
+TRON2 Manipulation Controller Third-Party Notices
+
+This distribution includes the third-party open-source components listed
+below. All of them are distributed under licenses that permit
+redistribution and require attribution only, except for Eigen, which is
+under the Mozilla Public License 2.0 (a file-level copyleft), and
+orocos-kdl, which is under the GNU Lesser General Public License 2.1 and is
+covered by the written offer at the end of this file. Full license texts
+are provided in THIRD_PARTY_NOTICES.md.
+
+Components redistributed as standalone shared libraries
+
+  ONNX Runtime 1.10.0 .......................... MIT
+  BehaviorTree.CPP ............................. MIT
+  OSQP ......................................... Apache License 2.0
+  OsqpEigen 0.6.3 .............................. BSD 3-Clause
+  MuJoCo 2.1.0 ................................. Apache License 2.0
+  Intel Threading Building Blocks 2020.1 ....... Apache License 2.0
+  eProsima Fast DDS ............................ Apache License 2.0
+
+Components compiled into the prebuilt runtime libraries
+
+  eProsima Fast CDR ............................ Apache License 2.0
+  Protocol Buffers ............................. BSD 3-Clause
+  FlatBuffers 1.12.0 ........................... Apache License 2.0
+  RE2 .......................................... BSD 3-Clause
+  nsync ........................................ Apache License 2.0
+  ONNX (model format) .......................... Apache License 2.0
+  Qhull ........................................ Qhull license
+  tinyxml, tinyxml2 ............................ zlib License
+  foonathan/memory ............................. zlib License
+  bzip2 / libbzip2 ............................. bzip2 License 1.0.6
+  LZ4 (library sources) ........................ BSD 2-Clause
+  Eigen ........................................ Mozilla Public License 2.0
+  Pinocchio .................................... BSD 2-Clause
+  urdfdom ...................................... BSD 3-Clause
+  ROS kdl_parser ............................... BSD 3-Clause
+  orocos-kdl ................................... LGPL 2.1 (see below)
+  class_loader, pluginlib ...................... BSD 3-Clause
+  ros_control .................................. BSD 3-Clause
+  costmap_2d ................................... BSD 3-Clause
+  grid_map ..................................... BSD 3-Clause
+  ROS 1 message definitions .................... BSD 3-Clause
+  Boost (Interprocess) ......................... Boost Software License 1.0
+
+Modifications to upstream components
+
+The prebuilt MROS runtime libraries distributed with this repository
+(libmroslib.so, libmroscontrol.so, libmroscostmap2d.so, libmrosgridmap.so,
+libmrosurdf.so, libmrostbb.so.2) are modified redistributions of upstream
+open-source projects. They were rebuilt with the upstream source
+namespaces renamed to a single "mros" namespace, renamed and repackaged as
+the MROS runtime, and integrated with the TRON2 controller layout, plugin
+descriptor files, and launch environment. A subset of exported symbols was
+also renamed.
+
+Upstream projects in this group: eProsima Fast DDS, eProsima Fast CDR,
+ros_control, costmap_2d, grid_map, urdfdom, ROS kdl_parser, class_loader,
+pluginlib, and Intel Threading Building Blocks.
+
+orocos-kdl (LGPL-2.1)
+
+  orocos-kdl is licensed under the GNU Lesser General Public License
+  version 2.1 and is statically linked into libmrosurdf.so. The library
+  and its use are covered by that license. A copy of the license is
+  provided in THIRD_PARTY_NOTICES.md, section 7.10.
+
+  In accordance with section 6(c) of the GNU Lesser General Public
+  License version 2.1, LimX Dynamics offers, valid for at least three
+  years from the date of distribution of this product, to provide the
+  materials specified in section 6(a) of that license - the complete
+  corresponding machine-readable source code of the library as used in
+  this product, together with the relinkable object code of the work that
+  links against it - to any third party, at a charge no greater than the
+  cost of performing the distribution. Requests may be sent to:
+  eleven@limxdynamics.com
+
+No endorsement by Microsoft, DeepMind, Intel, eProsima, Willow Garage,
+ANYbotics, the OSQP contributors, Fondazione Istituto Italiano di
+Tecnologia, the Orocos project, or any other upstream project or its
+contributors is implied.
+
+Full license texts are provided in THIRD_PARTY_NOTICES.md.

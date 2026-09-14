@@ -1,0 +1,21 @@
+#!/bin/bash
+
+val=$1
+if [ -z ${val} ]; then 
+    echo -e "ERROR: SN is empty!"
+    echo -e ""
+    echo "Usage: $0 [SN number]"
+    echo -e ""
+    exit 1
+fi
+
+file="/opt/limx/imptdata/sn.yaml"
+if [ ! -f ${file} ]; then
+    sudo mkdir -p /opt/limx/imptdata
+    sudo touch ${file}
+fi
+
+sudo chmod -R 777 /opt/limx/imptdata
+
+sudo echo "sn: ${val}" > ${file}
+sync

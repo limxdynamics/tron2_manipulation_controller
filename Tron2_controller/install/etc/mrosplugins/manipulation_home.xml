@@ -1,0 +1,7 @@
+<library path="lib/libmanipulation_home">
+    <class name="manipulation/Home" type="manipulation::Home" base_class_type="mros::controller_interface::ControllerBase">
+        <description>
+            manipulation_home controller.
+        </description>
+    </class>
+</library>

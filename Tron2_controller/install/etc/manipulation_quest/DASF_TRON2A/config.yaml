@@ -1,0 +1,87 @@
+# manipulation_quest — DASF_TRON2A
+#
+# 结构与 DACH_TRON2A/config.yaml 完全一致，机型相关的值全部重新确认过。其中手臂
+# 初始化与工作空间裁剪不能照抄 DACH：
+#
+#   1) 手臂模组绕 X 轴翻转 180° 装在 upper_base_Link 上。经比对 URDF，肩部安装点
+#      以下的手臂链与 DACH **逐字节相同**（各关节 xyz / axis / limit 全等），差别
+#      只在安装变换：DACH 的 proximal_pitch_L_Joint 挂 base_Link、xyz=(-0.0004,
+#      +0.0918, +0.0547)、R=I；本机型挂 upper_base_Link、xyz=(-0.0004, -0.0918,
+#      -0.0547)、R=Rx(pi)，而 upper_base_Link 在骨盆系 z=0.5823。
+#   2) 因为 y 取了负，URDF 里的 _L_U_ 链落在**物理右侧**，与 DACH 的 _L_ 相反。
+#   3) 基座系是骨盆不是躯干，肩高从 0.0547 变成 0.5276，差 0.47282 m。
+#
+# 由 1)+2) 得出关节值的换算规则（下面 desire_joint 各节即按此推导）：
+#      本机型 _L_U_ 链要摆的 = DACH **右**臂的姿态，再把安装翻转吃进 roll：
+#          q_LU = mirror(q_DACH_L) 然后 roll += pi
+#      其中 mirror = {1,-1,-1,1,-1,1,-1}，就是 loadDesireJoint 生成右半边用的那个。
+#      展开成对左臂 7 位的直接映射：
+#          [p, roll, yaw, elbow, wy, wp, wr] -> [p, pi-roll, -yaw, elbow, -wy, wp, -wr]
+#      该规则用 FK 验过：把 DACH desire_joint01/02/03 代进去算出的 TCP 相对肩部位置，
+#      与 DACH 右臂的完全重合（残差 13.2 mm 是两份 URDF 的 grasper 原点常量差，
+#      三个位形上一模一样，不是姿态差）。规则独立复现了 drag/config/DASF_TRON2A
+#      标定的 home_position（推导值 2.8916 vs 标定值 2.89，差 0.0016 rad = 取整）。
+
+# 初始化航路点，含义见 DACH_TRON2A/config.yaml。
+#
+# hip_joint（= proximal_roll）三节统一取 2.8916 = pi - 0.25，而不是逐节按规则算出的
+# pi / pi / 2.8916。原因：DACH 是无腿上身，01/02 的 roll=0（自然下垂）不会撞到任何
+# 东西；本机型有腿，同样的"下垂"位形在 roll=pi 会把手臂插进对侧大腿。对
+# robot_zeromass_graser.urdf
+# 的 collision mesh 实测（两臂同时按 mirror 联动，含 quintic 插值路径采样）：
+#
+#   L_U=[0, roll, -1.48, elbow, 0,0,0]     roll=pi   roll=3.05  roll=2.95  roll=2.8916
+#     elbow=0    （即 desire_joint01）        0.4 撞     0.8 撞     4.2 撞      30.2
+#     elbow=-1.57（即 desire_joint02）       33.5       ——         ——         71.1
+#
+# 取 2.8916 后三个航路点分别为 30.2 / 71.1 / 69.1 mm，段间插值最小 30.2 mm，且与
+# home 的 roll 一致——整个初始化过程 roll 不动，只动 yaw 和肘，比 DACH 上先摆到
+# pi 再退回来更干净。2.8916 同时落在 compliant_track virtual_limit 的墙（±pi）之内，
+# 不会一上电就顶在势垒上。
+desire_joint01:
+  abad_joint: 0.0
+  hip_joint: 2.8916
+  yaw_joint: -1.48
+  knee_joint: 0.0
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+desire_joint02:
+  abad_joint: 0.0
+  hip_joint: 2.8916
+  yaw_joint: -1.48
+  knee_joint: -1.57
+  wrist_yaw_joint: 0.0
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+# 与 drag/config/DASF_TRON2A/config.yaml 的 home_position 左臂 7 位一致
+# （该处取整成 2.89，此处保留推导值 2.8916，差 0.0016 rad 无实际影响）。
+desire_joint03:
+  abad_joint: 0.0
+  hip_joint: 2.8916
+  yaw_joint: 0.0
+  knee_joint: -1.57
+  wrist_yaw_joint: -0.236
+  wrist_pitch_joint: 0.0
+  wrist_roll_joint: 0.0
+
+# 夹爪板的 q[0]/q[1] 仍按物理左/右排列，但本机型命名左右臂与物理左右相反。
+swap_gripper_hands: true
+
+# 贴身工作空间裁剪，含义见 DACH_TRON2A/config.yaml。只有 z 这一档按机型改：
+# DACH 的 [-0.15, 0.20] 是躯干系、肩在 z=+0.0547；本机型是骨盆系、肩在 z=+0.5276。
+# 按肩高差 0.47282 平移，保持"相对肩部的同一条危险高度带"，与
+# compliant_dev/config/DASF_TRON2A 的 hand_pos_limits 用的是同一个偏移量。
+# 这条带子只覆盖躯干、不覆盖骨盆以下的腿，与 compliant_track virtual_limit 只防躯干
+# 是同一个取舍。
+#
+# x/y 与 DACH 相同，因为代码里 left/right 两支的 y 比较方向写死、隐含"left_hand 锚点
+# 在 +y 侧"，而 compliant_track 的 swap_teleop_hands 已把 /arm_pose 与 /quest_info_*
+# 一并按物理左右对外，本机型的 left_hand 因此同样落在 +y。
+hand_workspace_near_limit:
+  x: 0.25
+  y: 0.15
+  z_min: 0.32282
+  z_max: 0.67282

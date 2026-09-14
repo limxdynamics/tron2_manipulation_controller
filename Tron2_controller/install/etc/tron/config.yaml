@@ -1,0 +1,88 @@
+#bt_xml: install/etc/tron/tron_bt.xml
+#bt_xml: tron_bt.xml
+#bt_xml: tron_bt_light.xml
+
+#switch_controller_fmt: "mroscontrollermanager switch %s tron2"
+switch_controller_fmt: "echo 'mroscontrollermanager %s %s tron2'"
+
+#switch_light_fmt: "mrosservice call /srv/peripheral peripheral/PeripheralSrv '{\"dev_type\":%d,\"dev_cmd\":%d,\"data\":[%d,%d,%d]}'"
+#switch_light_fmt: "echo '{\"dev_type\":%d,\"dev_cmd\":%d,\"data\":[%d,%d,%d]}'"
+
+#controller_config_file:
+#  WF_TRON1A: 'tron1a_controllers/tron1a_wheelfoot_controllers.yaml'
+#  SF_TRON1A: 'tron1a_controllers/tron1a_solefoot_controllers.yaml'
+#  PF_TRON1A: 'tron1a_controllers/tron1a_pointfoot_controllers.yaml'
+
+#controller_config_file:
+#  PF_TRON1A: 'tron1_controllers/tron1a_pointfoot_controllers.yaml'
+#  SF_TRON1A: 'tron1_controllers/tron1a_solefoot_controllers.yaml'
+#  WF_TRON1A: 'tron1_controllers/tron1a_wheelfoot_controllers.yaml'
+
+#max_height_offset: 0.09
+#height_offset_step: 0.03
+#pub_twist: [0.13,0,0] #[x,y,z]
+#pub_twist_duration: 15 #ms
+
+#wf_vel_rate: 1.0
+#wf_angular_vel_rate: 0.75
+
+#wf_vel_rate_low: 1.0
+#wf_angular_vel_rate_low: 0.5
+
+#vel_rate: 0.5
+#angular_vel_rate: 0.5
+
+#sdk_vel_rate: 0.5
+
+#x_delta_time: 0.1
+#yaw_delta_time: 0.1
+#x_filter_time: 6.0 
+#yaw_filter_time: 3.5 
+
+#action_controller_mapping: {
+#  ARM_TRON2A: action_controller_mp,
+#  PF_TRON2A:  action_controller,
+#  WF_TRON2A:  action_controller,
+#  SF_TRON2A:  action_controller,
+#}
+
+#crit_low_bat_event: EV_NONE
+#ignore_charging: true
+#action_controller_mp: 
+#  - [atc_mp_tele,   manipulation_teleoperation, 10]
+#  - [atc_mp_dev,    manipulation_dev,           10]
+#  - [atc_damping,   manipulation_damping,       10]
+#  - [atc_mp_head_start, manipulation_head,      10]
+#  - [atc_mp_head_stop,  manipulation_head,      10]
+
+
+action_controller_mp:
+  - [atc_damping,         manipulation_damping,   10]
+  - [atc_mp_home,         manipulation_home,      10]
+  - [atc_mp_dev,          manipulation_dev,       10]
+  - [atc_mp_dev_stop,     manipulation_dev,       10]
+  - [atc_mp_quest,        manipulation_quest,     10] # stop other
+  - [atc_mp_quest_stop,   manipulation_quest,     10]
+  - [atc_mp_track_start,  manipulation_track,     10] #_start don't stop other
+  - [atc_mp_track_stop,   manipulation_track,     10]
+  - [atc_mp_head_start,   manipulation_head,      10] #_bg can't stop by other
+  - [atc_mp_head_stop,    manipulation_head,      10] #_bg can't stop by other
+  - [atc_mp_dev_start,    manipulation_dev,       10]
+
+action_controller_mp_order: [EV_MP_DEV]
+action_controller_mp_order_name:
+  ST_DEVED: 0
+
+action_controller:
+  - [atc_damping,  damping,  10]
+  - [atc_prepare,  prepare,  10]
+  - [atc_stand,    stand,    10]
+  - [atc_walk,     walk,      0]
+  - [atc_stair,    stair,    10]
+  - [atc_sit,      sit,      10]
+  - [atc_rotate,   rotate,    0]
+  - [atc_recover,  recover,  20]
+  - [atc_marktime, marktime, 10]
+
+#ignore_imu: true
+#lifter_return_zero_timeout: 10

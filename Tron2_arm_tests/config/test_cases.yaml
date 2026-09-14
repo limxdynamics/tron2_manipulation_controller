@@ -1,0 +1,34 @@
+cases:
+  - id: H_SAFE
+    type: moveH
+    duration: 2.0
+    target_head: [0.10, 0.00]
+
+  - id: J_PREP
+    type: moveJ
+    duration: 3.0
+    target_q: [0.0, 0.25, 0.0, -1.57, 0.236, 0.0, 0.0,
+               0.0, -0.25, 0.0, -1.57, -0.236, 0.0, 0.0]
+
+  - id: P_REACHABLE
+    type: moveP
+    duration: 2.0
+    target_pose: [0.50, 0.28, -0.25, 0.706775, 0.006158, -0.707391, -0.005416,
+                  0.50, -0.28, -0.25, 0.706775, -0.006158, -0.707391, 0.005416]
+
+  - id: SJ_TRACK
+    type: servoJ
+    duration: 3.0
+    send_rate_hz: 100.0
+    filter_ratio: 1.0
+    target_q: [0.10, 0.25, -0.05, -1.45, 0.20, 0.03, -0.04,
+               0.10, -0.25, 0.05, -1.45, -0.20, -0.03, 0.04]
+    target_head: [0.10, 0.00]
+
+  - id: SP_TRACK
+    type: servoP
+    duration: 3.0
+    send_rate_hz: 100.0
+    payload_mode: pos
+    target_pose: [0.50, 0.32, -0.25, 0.706775, 0.006158, -0.707391, -0.005416,
+                  0.50, -0.32, -0.25, 0.706775, -0.006158, -0.707391, 0.005416]

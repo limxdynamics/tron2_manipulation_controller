@@ -1,0 +1,6 @@
+default_robot: DACH_TRON2A
+robots:
+  DACH_TRON2A:
+    model: ../../robot_description/tron2a/DACH_TRON2A/xml/robot_grasper.xml
+  DACH_TRON2B:
+    model: ../../robot_description/tron2b/DACH_TRON2B/xml/robot_grasper.xml
