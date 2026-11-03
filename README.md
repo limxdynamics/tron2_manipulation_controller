@@ -47,7 +47,7 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
   <img src="docs/demo.gif" alt="DACH_TRON2A in MuJoCo clamps a box between its grippers, lifts it, carries it 10 cm to the left and sets it down, driven by MoveJ and MoveP requests over the WebSocket SDK" width="720">
 </p>
 
-A pick-and-place run in real time: 10 SDK requests (MoveJ to the prepared pose, eight MoveP targets that approach, lower, clamp, lift, carry, place, release and retreat, then MoveJ back). All 10 succeeded, with MoveP end positions within 1.7 cm of their targets.
+A pick-and-place run in real time: 10 SDK requests (MoveJ to the prepared pose, eight MoveP targets that approach, lower, clamp, lift, carry, place, release and retreat, then MoveJ back). All 10 succeeded, with MoveP end positions within 1.5 cm of their targets.
 
 The arm motion is the controller's real output: joint angles were read back over the same WebSocket API (`request_get_joint_state`, 25 Hz) during the run and replayed in MuJoCo. The table and box are added when rendering, and the box follows the grippers between the clamp and release steps: the simulator in this repository models the 16 arm and head joints only, with no objects or gripper fingers.
 

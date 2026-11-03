@@ -47,7 +47,7 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
   <img src="docs/demo.gif" alt="DACH_TRON2A 在 MuJoCo 中用两只夹爪夹住箱子，抬起、向左平移 10 cm 后放下，全程由 WebSocket SDK 下发的 MoveJ 和 MoveP 指令驱动" width="720">
 </p>
 
-一次实时的搬箱子演示：共 10 条 SDK 指令（MoveJ 到准备姿态；8 个 MoveP 目标，依次接近、下降、夹紧、抬起、平移、放下、松开、抬手；最后 MoveJ 回位）。10 条全部成功，MoveP 末端位置与目标的误差都在 1.7 cm 以内。
+一次实时的搬箱子演示：共 10 条 SDK 指令（MoveJ 到准备姿态；8 个 MoveP 目标，依次接近、下降、夹紧、抬起、平移、放下、松开、抬手；最后 MoveJ 回位）。10 条全部成功，MoveP 末端位置与目标的误差都在 1.5 cm 以内。
 
 机械臂的动作是控制器的真实输出：运行期间通过同一套 WebSocket 接口（`request_get_joint_state`，25 Hz）读回关节角，再在 MuJoCo 中回放。桌子和箱子是渲染时加上的，箱子在"夹紧"到"松开"之间跟随夹爪移动；本仓库的仿真器只模拟手臂和头部的 16 个关节，没有物体，也不模拟夹爪手指。
 
