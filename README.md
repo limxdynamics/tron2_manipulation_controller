@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="tron2_manipulation_controller: the DACH_TRON2A dual-arm robot moving its grippers to target poses" width="100%">
+  <img src="docs/banner.png" alt="tron2_manipulation_controller: the DACH_TRON2A dual-arm robot holding a box with both grippers" width="100%">
 </p>
 
 <p align="center">

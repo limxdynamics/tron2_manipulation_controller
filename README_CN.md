@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="tron2_manipulation_controller：DACH_TRON2A 双臂机器人把夹爪移到目标位姿" width="100%">
+  <img src="docs/banner.png" alt="tron2_manipulation_controller：DACH_TRON2A 双臂机器人用两只夹爪抱起一个箱子" width="100%">
 </p>
 
 <p align="center">
