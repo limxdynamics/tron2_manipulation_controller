@@ -41,6 +41,14 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
 
 `Tron2_simulation_mujoco` only handles low-level motor states and motor commands. SDK interfaces such as MoveJ, MoveP, ServoJ, and ServoP are provided by `Tron2_controller` over WebSocket.
 
+## Demo
+
+<p align="center">
+  <img src="docs/demo.gif" alt="DACH_TRON2A in MuJoCo running MoveH, MoveJ, three MoveP targets, a ServoJ stream and a final MoveJ sent through the WebSocket SDK" width="720">
+</p>
+
+A live run through the SDK in real time: MoveH (head), MoveJ to the prepared pose, three MoveP targets, a 100 Hz ServoJ stream and MoveJ back. All 7 commands succeeded. The joint angles were read back over the same WebSocket API (`request_get_joint_state`, 25 Hz) while the cases ran, then replayed in MuJoCo to render the animation.
+
 ## Quick start
 
 Install the [system dependencies](#system-dependencies) first, and initialise the robot model submodule if `robot_description/` is empty:

@@ -41,6 +41,14 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
 
 `Tron2_simulation_mujoco` 只处理底层电机状态和电机指令；MoveJ、MoveP、ServoJ、ServoP 等 SDK 接口由 `Tron2_controller` 通过 WebSocket 提供。
 
+## 演示
+
+<p align="center">
+  <img src="docs/demo.gif" alt="DACH_TRON2A 在 MuJoCo 中依次执行经 WebSocket SDK 下发的 MoveH、MoveJ、三个 MoveP 目标、ServoJ 流和最后的 MoveJ" width="720">
+</p>
+
+一次经 SDK 实际运行的实时录像：MoveH（头部）、MoveJ 到准备姿态、三个 MoveP 目标、100 Hz 的 ServoJ 流，最后 MoveJ 回到准备姿态，7 条指令全部成功。用例运行期间通过同一套 WebSocket 接口（`request_get_joint_state`，25 Hz）读回关节角，再在 MuJoCo 中回放渲染成动图。
+
 ## 快速开始
 
 先安装[系统依赖](#系统依赖)，如果 `robot_description/` 为空，再初始化机器人模型 submodule：
