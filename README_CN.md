@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/tron2a_dual_arm.jpg" alt="MuJoCo 仿真中的 TRON2A 双臂机器人，可见夹爪手指与头部关节" width="640">
+  <img src="docs/banner.png" alt="tron2_manipulation_controller：DACH_TRON2A 双臂机器人把夹爪移到目标位姿" width="100%">
 </p>
 
 <p align="center">
@@ -13,11 +13,33 @@
   <img src="https://img.shields.io/badge/runtime-prebuilt-2f6feb" alt="预编译运行包">
 </p>
 
-# DACH_SIM
+# tron2_manipulation_controller
 
-`DACH_SIM` 是面向 `DACH_TRON2A` 双臂机器人的本地仿真与 SDK 验证工作区。MuJoCo 仿真器、双臂控制器、手柄遥控器和 WebSocket SDK 全部在本机通过 `127.0.0.1` 联调，一条动作指令可以不接任何硬件就走完整条链路。
+本仓库（工作区名 `DACH_SIM`）是面向 `DACH_TRON2A` 双臂机器人的本地仿真与 SDK 验证工作区。MuJoCo 仿真器、双臂控制器、手柄遥控器和 WebSocket SDK 全部在本机通过 `127.0.0.1` 联调，一条动作指令可以不接任何硬件就走完整条链路。
 
 > **适用范围：** 仅本机回环仿真。两个运行包都是预编译产物，SDK 链路只针对 `127.0.0.1` 验证；真机与现场内网不在范围内（见[注意事项](#注意事项)）。完整流程 —— 环境准备、切模式、成功判据与排错 —— 见 [`USER_MANUAL.md`](USER_MANUAL.md)。
+
+## 亮点
+
+- **整条链路在一台机器上。** MuJoCo 仿真器、双臂控制器、手柄和 WebSocket SDK 都通过 `127.0.0.1` 通信，不需要真机。
+- **五种运动接口。** `MoveJ`、`MoveP`、`MoveH`（头部）、`ServoJ`、`ServoP`，以 JSON 请求经 `ws://127.0.0.1:5000` 下发。
+- **QP 运动规划 + PD 控制**，由预编译的 `Tron2_controller` 运行包提供。
+- **真实机型。** 带夹爪的 `DACH_TRON2A`，模型来自 [tron2-robot-description](https://github.com/limxdynamics/tron2-robot-description)：双臂各 7 个关节，头部 2 个关节。
+- **两层测试。** CI 中跑离线 pytest；对运行中的仿真跑 live 套件（smoke、MoveJ/H/P、ServoJ/P，以及 104.6 秒的 VLA 轨迹回放）。
+
+## 工作原理
+
+<p align="center">
+  <img src="docs/how_it_works_zh.png" alt="Python 代码经 ws://127.0.0.1:5000 向 Tron2_controller 发送 MoveJ、MoveP、ServoJ、ServoP 的 JSON 请求，控制器与 MuJoCo 中的机器人交换 /motor/cmd 和 /motor/state" width="100%">
+</p>
+
+```text
+Tron2_arm_tests -> ws://127.0.0.1:5000 -> Tron2_controller
+Tron2_controller -> /motor/cmd -> Tron2_simulation_mujoco
+Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
+```
+
+`Tron2_simulation_mujoco` 只处理底层电机状态和电机指令；MoveJ、MoveP、ServoJ、ServoP 等 SDK 接口由 `Tron2_controller` 通过 WebSocket 提供。
 
 ## 快速开始
 
@@ -70,17 +92,9 @@ sudo apt install libglfw3 libglew2.1 libgl1 libwebsockets15 libssl1.1
 - `Tron2_simulation_mujoco/tron2_mujoco_sim` 直接链接 `libglfw.so.3`、`libGLEW.so.2.1` 和 `libGL.so.1`。即使使用无窗口脚本 `run_headless.sh`，动态链接器也需要先找到这些库。
 - `Tron2_controller/install/bin/signaling_node` 直接链接 `libwebsockets.so.15`。
 - `libssl1.1` 不是本仓库中任何二进制的直接依赖，而是 `libwebsockets15` 包自身的传递依赖（其 control 段声明 `Depends: libssl1.1`），安装 `libwebsockets15` 时 apt 会自动带上。
+- `libev4` 同样是 `libwebsockets15` 的依赖，apt 会自动安装；若在更新的系统上手动提供 20.04 的运行库，还需要 `libev.so.4`。
+- `signaling_node` 用 IPv6 双栈 socket 启动 WebSocket 服务。如果主机或容器在内核层面禁用了 IPv6，控制器日志会出现 `E: ERROR opening socket`，5000 端口没有服务监听；请启用 IPv6（Docker 可加 `--sysctl net.ipv6.conf.all.disable_ipv6=0`）。
 - Ubuntu 22.04 及更新版本的默认仓库通常不再提供 `libssl1.1`。如果要直接运行当前预编译控制器，建议使用 Ubuntu 20.04 兼容环境，或提供满足 `libwebsockets.so.15` 加载要求的 OpenSSL 1.1 运行库（`libssl.so.1.1` / `libcrypto.so.1.1`）。
-
-## 关键接口
-
-```text
-Tron2_arm_tests -> ws://127.0.0.1:5000 -> Tron2_controller
-Tron2_controller -> /motor/cmd -> Tron2_simulation_mujoco
-Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
-```
-
-`Tron2_simulation_mujoco` 只处理底层电机状态和电机指令；MoveJ、MoveP、ServoJ、ServoP 等 SDK 接口由 `Tron2_controller` 通过 WebSocket 提供。
 
 ## 项目结构
 
@@ -114,6 +128,17 @@ python3 -m pytest -q
 ```
 
 该命令只运行不连接机器人、不启动仿真器的离线 pytest。`Tron2_arm_tests/scripts/run_all.sh` 及专项脚本属于 live 仿真联调，会连接本机 `127.0.0.1:5000` 并发送动作指令，不作为默认 CI 步骤执行。
+
+## 验证
+
+2026-11-03 在云端容器中按快速开始运行（Ubuntu 24.04 主机，补充 Ubuntu 20.04 的 `libglew2.1`、`libwebsockets15`、`libev4`、`libssl1.1` 运行库），仿真器使用 `run_headless.sh`：
+
+- 仿真器加载 `robot_grasper.xml`（16 个关节，步长 1 ms），控制器启动并识别 14 个手臂关节，`./pub.sh switch` 后进入开发者模式。
+- `./scripts/run_all.sh`：preflight 通过，5 个用例通过 4 个（`H_SAFE`、`J_PREP`、`P_REACHABLE` 误差 14.4 mm、`SJ_TRACK`）。`SP_TRACK`（ServoP，3 秒移动到 20 cm 外的目标）每次都失败，手臂完全不动；把 ServoP 目标换成 MoveP 已能到达的 `P_REACHABLE` 位姿，结果相同。
+- `./scripts/run_servo.sh`（在 `run_all.sh` 之后运行）：4 个用例全部通过，包括两个 ServoP。若在刚启动的仿真上直接运行，第一个用例会因手臂尚未处于准备姿态被拒绝，因此请先运行 `run_all.sh`。
+- `./scripts/run_move.sh`：在 400 秒时限内完成的 5 个用例全部通过（MoveJ ×2、MoveH ×2、MoveP ×1）。
+- 容器内没有 IPv6，`signaling_node` 运行时加了一个仅用于测试的垫片，把它的 IPv6 socket 映射为 IPv4（见[系统依赖](#系统依赖)）。
+- 未运行 `run_gui.sh`、`run_vla_servoj.sh`，也未在真机上运行。
 
 ## 注意事项
 

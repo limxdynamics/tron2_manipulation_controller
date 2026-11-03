@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/tron2a_dual_arm.jpg" alt="The TRON2A dual-arm robot in the MuJoCo simulator, with the gripper fingers and head joints visible" width="640">
+  <img src="docs/banner.png" alt="tron2_manipulation_controller: the DACH_TRON2A dual-arm robot moving its grippers to target poses" width="100%">
 </p>
 
 <p align="center">
@@ -13,11 +13,33 @@
   <img src="https://img.shields.io/badge/runtime-prebuilt-2f6feb" alt="Prebuilt runtime">
 </p>
 
-# DACH_SIM
+# tron2_manipulation_controller
 
-`DACH_SIM` is a local simulation and SDK validation workspace for the `DACH_TRON2A` dual-arm robot. The MuJoCo simulator, the dual-arm controller, the joystick teleoperator and the WebSocket SDK all run on one machine over `127.0.0.1`, so a motion command can be traced end to end without any hardware.
+This repository (workspace name `DACH_SIM`) is a local simulation and SDK validation workspace for the `DACH_TRON2A` dual-arm robot. The MuJoCo simulator, the dual-arm controller, the joystick teleoperator and the WebSocket SDK all run on one machine over `127.0.0.1`, so a motion command can be traced end to end without any hardware.
 
 > **Scope:** loopback simulation only. Both runtime packages ship prebuilt, and the SDK path is validated against `127.0.0.1`; real hardware and on-site networks are out of scope (see [Notes](#notes)). The complete procedure — setup, mode switching, success checks and troubleshooting — is in [`USER_MANUAL.md`](USER_MANUAL.md).
+
+## Highlights
+
+- **The whole loop on one machine.** MuJoCo simulator, dual-arm controller, joystick and WebSocket SDK all talk over `127.0.0.1`; no robot needed.
+- **Five motion interfaces.** `MoveJ`, `MoveP`, `MoveH` (head), `ServoJ` and `ServoP` as JSON requests over `ws://127.0.0.1:5000`.
+- **QP motion planning with PD control** in the prebuilt `Tron2_controller` runtime.
+- **The real model.** `DACH_TRON2A` with grippers from [tron2-robot-description](https://github.com/limxdynamics/tron2-robot-description): 2 × 7 arm joints and 2 head joints.
+- **Tests in two layers.** Offline pytest in CI; live suites (smoke, MoveJ/H/P, ServoJ/P and a 104.6 s VLA trajectory replay) against the running simulator.
+
+## How it works
+
+<p align="center">
+  <img src="docs/how_it_works_en.png" alt="Python code sends JSON MoveJ, MoveP, ServoJ and ServoP requests over ws://127.0.0.1:5000 to Tron2_controller, which exchanges /motor/cmd and /motor/state with the robot in MuJoCo" width="100%">
+</p>
+
+```text
+Tron2_arm_tests -> ws://127.0.0.1:5000 -> Tron2_controller
+Tron2_controller -> /motor/cmd -> Tron2_simulation_mujoco
+Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
+```
+
+`Tron2_simulation_mujoco` only handles low-level motor states and motor commands. SDK interfaces such as MoveJ, MoveP, ServoJ, and ServoP are provided by `Tron2_controller` over WebSocket.
 
 ## Quick start
 
@@ -70,17 +92,9 @@ sudo apt install libglfw3 libglew2.1 libgl1 libwebsockets15 libssl1.1
 - `Tron2_simulation_mujoco/tron2_mujoco_sim` directly links `libglfw.so.3`, `libGLEW.so.2.1`, and `libGL.so.1`. The same binary is loaded by `run_headless.sh`, so these libraries are still required for headless startup.
 - `Tron2_controller/install/bin/signaling_node` directly links `libwebsockets.so.15`.
 - `libssl1.1` is not a direct dependency of any binary in this repository. It is a transitive dependency of the `libwebsockets15` package itself (`Depends: libssl1.1`), and is pulled in automatically by `apt` together with `libwebsockets15`.
+- `libev4` is pulled in the same way by `libwebsockets15`; if you provide the 20.04 libraries by hand on a newer release, `libev.so.4` is needed too.
+- `signaling_node` opens its WebSocket server on an IPv6 dual-stack socket. On a host or container with IPv6 disabled in the kernel the controller log shows `E: ERROR opening socket` and nothing listens on port 5000; enable IPv6 (for Docker, `--sysctl net.ipv6.conf.all.disable_ipv6=0`).
 - Ubuntu 22.04 and newer releases usually do not ship `libssl1.1` in the default repositories. To run the current prebuilt controller directly, use an Ubuntu 20.04-compatible environment, or provide an OpenSSL 1.1 runtime (`libssl.so.1.1` / `libcrypto.so.1.1`) that `libwebsockets.so.15` can load.
-
-## Key interfaces
-
-```text
-Tron2_arm_tests -> ws://127.0.0.1:5000 -> Tron2_controller
-Tron2_controller -> /motor/cmd -> Tron2_simulation_mujoco
-Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
-```
-
-`Tron2_simulation_mujoco` only handles low-level motor states and motor commands. SDK interfaces such as MoveJ, MoveP, ServoJ, and ServoP are provided by `Tron2_controller` over WebSocket.
 
 ## Project structure
 
@@ -114,6 +128,17 @@ python3 -m pytest -q
 ```
 
 This command only runs offline pytest tests that neither connect to the robot nor start the simulator. `Tron2_arm_tests/scripts/run_all.sh` and the dedicated scripts are live simulation bring-up tests: they connect to the local `127.0.0.1:5000` endpoint and send motion commands, so they are not executed as part of the default CI.
+
+## Verification
+
+Run on 2026-11-03 in a cloud container (Ubuntu 24.04 host with the Ubuntu 20.04 `libglew2.1`, `libwebsockets15`, `libev4` and `libssl1.1` libraries), following the quick start with `run_headless.sh`:
+
+- The simulator loads `robot_grasper.xml` (16 joints, 1 ms step), the controller starts and reports 14 arm joints, and `./pub.sh switch` puts it in developer mode.
+- `./scripts/run_all.sh`: preflight passes and 4 of 5 cases pass (`H_SAFE`, `J_PREP`, `P_REACHABLE` 14.4 mm, `SJ_TRACK`). `SP_TRACK` (ServoP, 3 s to a target 20 cm away) failed in every run: the arm does not move. A ServoP to the pose that `P_REACHABLE` reaches with MoveP fails the same way.
+- `./scripts/run_servo.sh` (run after `run_all.sh`): 4 of 4 pass, including both ServoP cases. Started on a fresh simulator instead, its first case is rejected because the arms are not yet in the prepared pose, so run `run_all.sh` first.
+- `./scripts/run_move.sh`: the 5 cases that finished inside a 400 s limit passed (MoveJ ×2, MoveH ×2, MoveP ×1).
+- The container has no IPv6, so `signaling_node` was run with a test-only shim that maps its IPv6 socket to IPv4 (see [system dependencies](#system-dependencies)).
+- `run_gui.sh`, `run_vla_servoj.sh` and real hardware were not run.
 
 ## Notes
 
