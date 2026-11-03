@@ -19,6 +19,16 @@
 
 > **适用范围：** 仅本机回环仿真。两个运行包都是预编译产物，SDK 链路只针对 `127.0.0.1` 验证；真机与现场内网不在范围内（见[注意事项](#注意事项)）。完整流程 —— 环境准备、切模式、成功判据与排错 —— 见 [`USER_MANUAL.md`](USER_MANUAL.md)。
 
+## 演示
+
+<p align="center">
+  <img src="docs/demo.gif" alt="DACH_TRON2A 在 MuJoCo 中用两只夹爪夹住箱子，抬起、向左平移 10 cm 后放下，全程由 WebSocket SDK 下发的 MoveJ 和 MoveP 指令驱动" width="720">
+</p>
+
+一次实时的搬箱子演示。先用 MoveJ 到准备姿态（未剪入动图），再用 9 个 MoveP 依次接近箱子、下降、夹紧、抬起、平移 10 cm、放下、松开、抬手、收回双臂。10 条指令全部成功，MoveP 末端位置与目标的误差都在 1.7 cm 以内。
+
+机械臂的动作是控制器的真实输出：运行期间通过同一套 WebSocket 接口（`request_get_joint_state`，25 Hz）读回关节角，再在 MuJoCo 中回放。桌子和箱子是渲染时加上的，箱子在"夹紧"到"松开"之间跟随夹爪移动；本仓库的仿真器只模拟手臂和头部的 16 个关节，没有物体，也不模拟夹爪手指。箱子尺寸经过调整，按 0.1 秒间隔逐帧检查，手臂任何部位都不会穿入箱子或桌子。
+
 ## 亮点
 
 - **整条链路在一台机器上。** MuJoCo 仿真器、双臂控制器、手柄和 WebSocket SDK 都通过 `127.0.0.1` 通信，不需要真机。
@@ -40,16 +50,6 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
 ```
 
 `Tron2_simulation_mujoco` 只处理底层电机状态和电机指令；MoveJ、MoveP、ServoJ、ServoP 等 SDK 接口由 `Tron2_controller` 通过 WebSocket 提供。
-
-## 演示
-
-<p align="center">
-  <img src="docs/demo.gif" alt="DACH_TRON2A 在 MuJoCo 中用两只夹爪夹住箱子，抬起、向左平移 10 cm 后放下，全程由 WebSocket SDK 下发的 MoveJ 和 MoveP 指令驱动" width="720">
-</p>
-
-一次实时的搬箱子演示。先用 MoveJ 到准备姿态（未剪入动图），再用 9 个 MoveP 依次接近箱子、下降、夹紧、抬起、平移 10 cm、放下、松开、抬手、收回双臂。10 条指令全部成功，MoveP 末端位置与目标的误差都在 1.7 cm 以内。
-
-机械臂的动作是控制器的真实输出：运行期间通过同一套 WebSocket 接口（`request_get_joint_state`，25 Hz）读回关节角，再在 MuJoCo 中回放。桌子和箱子是渲染时加上的，箱子在"夹紧"到"松开"之间跟随夹爪移动；本仓库的仿真器只模拟手臂和头部的 16 个关节，没有物体，也不模拟夹爪手指。箱子尺寸经过调整，按 0.1 秒间隔逐帧检查，手臂任何部位都不会穿入箱子或桌子。
 
 ## 快速开始
 

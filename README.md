@@ -19,6 +19,16 @@ This repository (workspace name `DACH_SIM`) is a local simulation and SDK valida
 
 > **Scope:** loopback simulation only. Both runtime packages ship prebuilt, and the SDK path is validated against `127.0.0.1`; real hardware and on-site networks are out of scope (see [Notes](#notes)). The complete procedure — setup, mode switching, success checks and troubleshooting — is in [`USER_MANUAL.md`](USER_MANUAL.md).
 
+## Demo
+
+<p align="center">
+  <img src="docs/demo.gif" alt="DACH_TRON2A in MuJoCo clamps a box between its grippers, lifts it, carries it 10 cm to the left and sets it down, driven by MoveJ and MoveP requests over the WebSocket SDK" width="720">
+</p>
+
+A pick-and-place run in real time. After a MoveJ to the prepared pose (not shown), nine MoveP requests approach the box, lower, clamp, lift, carry it 10 cm, place it, release, raise the grippers and pull the arms back. All 10 requests succeeded, with MoveP end positions within 1.7 cm of their targets.
+
+The arm motion is the controller's real output: joint angles were read back over the same WebSocket API (`request_get_joint_state`, 25 Hz) during the run and replayed in MuJoCo. The table and box are added when rendering, and the box follows the grippers between the clamp and release steps: the simulator in this repository models the 16 arm and head joints only, with no objects or gripper fingers. The box is sized so that, checked every 0.1 s, no part of the arms passes into the box or the table.
+
 ## Highlights
 
 - **The whole loop on one machine.** MuJoCo simulator, dual-arm controller, joystick and WebSocket SDK all talk over `127.0.0.1`; no robot needed.
@@ -40,16 +50,6 @@ Tron2_simulation_mujoco -> /motor/state -> Tron2_controller
 ```
 
 `Tron2_simulation_mujoco` only handles low-level motor states and motor commands. SDK interfaces such as MoveJ, MoveP, ServoJ, and ServoP are provided by `Tron2_controller` over WebSocket.
-
-## Demo
-
-<p align="center">
-  <img src="docs/demo.gif" alt="DACH_TRON2A in MuJoCo clamps a box between its grippers, lifts it, carries it 10 cm to the left and sets it down, driven by MoveJ and MoveP requests over the WebSocket SDK" width="720">
-</p>
-
-A pick-and-place run in real time. After a MoveJ to the prepared pose (not shown), nine MoveP requests approach the box, lower, clamp, lift, carry it 10 cm, place it, release, raise the grippers and pull the arms back. All 10 requests succeeded, with MoveP end positions within 1.7 cm of their targets.
-
-The arm motion is the controller's real output: joint angles were read back over the same WebSocket API (`request_get_joint_state`, 25 Hz) during the run and replayed in MuJoCo. The table and box are added when rendering, and the box follows the grippers between the clamp and release steps: the simulator in this repository models the 16 arm and head joints only, with no objects or gripper fingers. The box is sized so that, checked every 0.1 s, no part of the arms passes into the box or the table.
 
 ## Quick start
 
