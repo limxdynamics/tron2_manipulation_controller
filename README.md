@@ -15,6 +15,8 @@
 
 # tron2_manipulation_controller
 
+> **Part of the TRON2 open-source ecosystem.** Where to start and the other TRON2 repositories: [TRON2 quick start](https://github.com/limxdynamics/limxdynamics/blob/main/doc/quickstart.md#tron2).
+
 This repository (workspace name `DACH_SIM`) is a local simulation and SDK validation workspace for the `DACH_TRON2A` dual-arm robot. The MuJoCo simulator, the dual-arm controller, the joystick teleoperator and the WebSocket SDK all run on one machine over `127.0.0.1`, so a motion command can be traced end to end without any hardware.
 
 > **Scope:** loopback simulation only. Both runtime packages ship prebuilt, and the SDK path is validated against `127.0.0.1`; real hardware and on-site networks are out of scope (see [Notes](#notes)). The complete procedure — setup, mode switching, success checks and troubleshooting — is in [`USER_MANUAL.md`](USER_MANUAL.md).

@@ -15,6 +15,8 @@
 
 # tron2_manipulation_controller
 
+> **TRON2 开源生态的一部分。** 上手路线和其他 TRON2 仓库：[TRON2 快速上手](https://github.com/limxdynamics/limxdynamics/blob/main/doc/quickstart_cn.md#tron2)。
+
 本仓库（工作区名 `DACH_SIM`）是面向 `DACH_TRON2A` 双臂机器人的本地仿真与 SDK 验证工作区。MuJoCo 仿真器、双臂控制器、手柄遥控器和 WebSocket SDK 全部在本机通过 `127.0.0.1` 联调，一条动作指令可以不接任何硬件就走完整条链路。
 
 > **适用范围：** 仅本机回环仿真。两个运行包都是预编译产物，SDK 链路只针对 `127.0.0.1` 验证；真机与现场内网不在范围内（见[注意事项](#注意事项)）。完整流程 —— 环境准备、切模式、成功判据与排错 —— 见 [`USER_MANUAL.md`](USER_MANUAL.md)。
